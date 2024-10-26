@@ -1,0 +1,68 @@
+
+import_function() {
+    echo "Running import operation..."
+	mkdir -p backups
+    cp -r C:/Users/$(whoami)/AppData/Local/"Frontier Developments"/"Elite Dangerous"/Options/Bindings backups/Bindings-$(date +"%Y-%m-%dT%H-%M-%S")/ 
+    cp -r  Bindings/ C:/Users/$(whoami)/AppData/Local/"Frontier Developments"/"Elite Dangerous"/Options/
+
+}
+
+export_function() {
+    echo "Running export operation..."
+	mkdir -p Bindings
+    cp -r C:/Users/$(whoami)/AppData/Local/"Frontier Developments"/"Elite Dangerous"/Options/Bindings/ ./
+}
+
+usage() {
+    echo "Usage: $0 <operation>"
+    echo "Operations:"
+    echo "  import - Run import operation"
+    echo "  export - Run export operation"
+    echo "  clean  - Clean config (requires confirmation)"
+    exit 1
+}
+
+clean_function() {
+    echo "This will remove all binding backups made by the import function, as well as the contents of the binding folde"   
+
+    read -p "Are you sure you want to proceed? (yes/no): " confirm
+    
+    confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')
+    
+    if [ "$confirm" = "yes" ]; then
+        echo "Cleaning config..."
+         rm -rf Bindings/
+         rm -rf backups/
+        echo "Clean operation completed."
+    else
+        echo "Clean operation cancelled."
+        exit 0
+    fi
+}
+
+main() {
+    
+    if [ $# -ne 1 ]; then
+        usage
+    fi
+
+    operation=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+
+    case $operation in
+        "import")
+            import_function
+            ;;
+        "export")
+            export_function
+            ;;
+		"clean")
+            clean_function
+            ;;
+        *)
+            echo "Error: Invalid operation '$1'"
+            usage
+            ;;
+    esac
+}
+
+main "$@"
